@@ -17,3 +17,140 @@ insert into studentinfo values
 (105,"arya",25,"Vizag","arya@gmail.com"),
 (106,"suhana",22,"Vizag","suhana@gmail.com"),
 (107,"anu",24,"Kurnool","anu@gmail.com");
+select * from studentinfo;
+
+create table if not exists backup_studentinfo
+select * from studentinfo;
+
+select * from backup_studentinfo;
+
+update studentinfo 
+set city  = "Mumbai"
+where stuName = "arya";
+
+create temporary table student
+select * from studentinfo;
+
+select count(distinct age) from studentinfo;
+select * from studentinfo where city = "Hyd";
+select * from studentinfo where age >23; 
+select * from studentinfo where age >23 and age = 24;
+select * from studentinfo where age = 24 order by stuName desc; 
+
+create index myindex on studentinfo(stuName);
+show indexes from studentinfo;
+
+select min(age) from studentinfo;
+select max(age) from studentinfo;
+select * from studentinfo;
+select avg(age) from studentinfo where city = "Hyd";
+select avg(age) from studentinfo ;
+
+alter table studentinfo add column stuRank int;
+update studentinfo 
+set stuRank = 3 
+where city = "Vjw";
+
+select sum(stuRank) from studentinfo;
+select count(distinct stuRank) from studentinfo;
+select * from studentinfo;
+
+select * from studentinfo  where city ="Hyd" or age =24;
+select * from studentinfo  where city ="Hyd" and age =24;
+select * from studentinfo where not city = "Hyd";
+select stuName, age from studentinfo where age in(24,25);
+select * from studentinfo where stuName like "A%";
+select * from studentinfo where stuName like "%A";
+select *,stuName as StudentName from studentinfo;
+------------------------------------------------------------
+select * from studentinfo;
+
+/*Retrieve the names and ages of all students who are from cities that start with 
+the letter "C" and are older than 20, sorted by age in descending order.*/
+
+select stuName, age,city from studentinfo where city like "V%" and age >20
+order by age desc;
+
+/*Retrieve the email addresses and ages of all students who have an email address that contains the 
+domain "@example.com" and are younger than 25, sorted by age in ascending order.*/
+
+select email,age from studentinfo where email like "%gmail.com" and age<25 
+order by age asc;
+
+/*Retrieve the average age of all students who are from cities that start with the letter "B".*/
+
+select avg(age) AS average_age from studentinfo where city like 'B%';
+
+create table stuscores(
+sid int primary key,
+maths int,
+science int,
+social int,
+college varchar(30));
+
+
+INSERT INTO stuscores VALUES
+(101, 85, 78, 90, 'ABC College'),
+(102, 72, 88, 84, 'XYZ College'),
+(103, 95, 92, 87, 'PQR College'),
+(104, 60, 65, 70, 'DEF College'),
+(105, 88, 82, 91, 'LMN College'),
+(106, 75, 80, 85, 'GHI College'),
+(107, 92, 94, 89, 'JKL College');
+
+select * from stuscores;
+select * from studentinfo;
+drop table stuscores;
+
+SELECT a.city, AVG(b.maths) AS avg_maths, AVG(b.science) AS avg_science, AVG(b.social) AS avg_social
+FROM studentinfo a JOIN stuscores b ON a.id = b.sid
+GROUP BY a.city;
+
+select a.stuName, a.age, a.city, b.maths as maths_score
+from studentinfo a join stuscores b on a.id = b.sid
+where b.maths = ( select max(b2.maths) from studentinfo a2 join stuscores b2
+on a2.id = b2.sid where a2.city = a.city)order by a.city;
+
+select a.stuName, a.age, (b.maths + b.science + b.social) / 3 AS avg_score
+from studentinfo a join stuscores b on a.id = b.sid where a.age between 20 and 30;
+
+
+
+ 
+
+DELIMITER &&
+
+CREATE PROCEDURE display(INOUT var1 VARCHAR)
+AS
+    SELECT stuNmae INTO var1 FROM studentinfo WHERE id = var1;
+GO
+
+DELIMITER ;
+
+
+set @myid = '103';
+call display(@myid);
+select @myid;
+
+DESCRIBE studentinfo;
+
+DELIMITER //
+/*------------------------------------------------------*/
+DELIMITER //
+
+CREATE TRIGGER duplicate_student_verify
+BEFORE INSERT ON studentinfo
+FOR EACH ROW
+BEGIN
+    IF (SELECT COUNT(*) FROM studentinfo WHERE email = NEW.email) > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: A student with this email already exists.';
+    END IF;
+END //
+
+DELIMITER ;
+
+
+SELECT * FROM studentinfo;
+INSERT INTO studentinfo VALUES (108,'sam', 25,'hyd','geethika@gmail.com',7);
+INSERT INTO studentinfo VALUES (109,'sam', 25,'hyd','arya@gmail.com',8);
