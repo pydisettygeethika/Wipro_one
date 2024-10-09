@@ -18,6 +18,3 @@ insert into studentinfo values
 (106,"suhana",22,"Vizag","suhana@gmail.com"),
 (107,"anu",24,"Kurnool","anu@gmail.com");
 select * from studentinfo;
-
-
-
